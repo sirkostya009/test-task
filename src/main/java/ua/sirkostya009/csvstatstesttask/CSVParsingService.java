@@ -8,21 +8,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
 public class CSVParsingService {
+    private final static int IP = 0;
     private final static int DATE = 1;
+    private final static int METHOD = 2;
     private final static int URI = 3;
-
-    // 28/07/2006:10:27:10-0300
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ssZ");
+    private final static int STATUS = 4;
 
     public Stats parse(MultipartFile[] files, int limit) {
         var start = Instant.now().getNano();
@@ -49,19 +51,31 @@ public class CSVParsingService {
                         .limit(limit)
                         .collect(Collectors.toMap(Map.Entry::getKey,
                                                   Map.Entry::getValue)))
-                .requestsPerSecond(new TreeMap<>(valid.stream()
-                        .map(record -> Map.entry(LocalDateTime.parse(record.get(DATE), formatter), record.get(DATE)))
-                        .sorted(Map.Entry.comparingByKey())
-                        .collect(Collectors.groupingBy(Map.Entry::getValue,
-                                                       Collectors.counting()))))
+                .requestsPerSecond(valid.stream()
+                        .collect(Collector.of(() -> new TreeMap<>(Comparator.reverseOrder()),
+                                              (map, record) -> map.merge(record.get(DATE), 1L, Long::sum),
+                                              (map, _m) -> map)))
                 .totalRows(records.size())
                 .validRows(valid.size())
-                .parseTime(Instant.now().minusNanos(start))
+                .parseTime(Duration.ofNanos(Instant.now().getNano() - start).toNanos())
                 .build();
     }
 
     private boolean validate(CSVRecord record) {
-        return true;
+        try {
+            var bytes = Arrays.stream(record.get(IP).split("\\.")).mapToInt(Integer::parseInt).toArray();
+            int status = record.get(STATUS).charAt(0) - '0';
+
+            return Pattern.matches("^\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}$", record.get(IP))
+                    && Pattern.matches("^\\d{2}/\\d{2}/\\d{4}:\\d{2}:\\d{2}:\\d{2}-\\d{4}$", record.get(DATE))
+                    && Pattern.matches("^GET|POST|PUT|DELETE|HEAD|OPTIONS|TRACE|CONNECT$", record.get(METHOD))
+                    && Pattern.matches("^/.*+$", record.get(URI))
+                    && Pattern.matches("^\\d{3}$", record.get(STATUS))
+                    && bytes[0] != 0 && Arrays.stream(bytes).allMatch(b -> b < 256)
+                    && status >= 1 && status <= 5;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private CSVParser openFile(MultipartFile file) throws IOException {
