@@ -9,7 +9,7 @@ public record Row(
         String date,
         @Pattern(regexp = "^GET|POST|PUT|DELETE|HEAD|OPTIONS|TRACE|CONNECT$")
         String method,
-        @Pattern(regexp = "^/.*+$")
+        @Pattern(regexp = "^/\\S*$")
         String uri,
         @Pattern(regexp = "^\\d{3}$")
         String status

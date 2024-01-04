@@ -31,8 +31,8 @@ public class Mapper {
 
     public static <T> Collector<MultipartFile, ?, List<T>> listCollector(CSVFormat format, Function<CSVRecord, T> mapper) {
         return Collector.of(ArrayList::new,
-                            (list, record) -> {
-                                try(var parser = format.parse(new InputStreamReader(record.getInputStream()))) {
+                            (list, file) -> {
+                                try(var parser = format.parse(new InputStreamReader(file.getInputStream()))) {
                                     parser.getRecords().stream().map(mapper).forEach(list::add);
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
