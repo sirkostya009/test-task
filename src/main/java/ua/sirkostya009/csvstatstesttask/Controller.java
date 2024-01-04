@@ -1,5 +1,6 @@
 package ua.sirkostya009.csvstatstesttask;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ public class Controller {
     private final Mapper mapper;
     private final Validator validator;
 
+    @Operation(summary = "Parse CSV files and return statistics")
     @PostMapping("/parse")
     public Stats upload(@RequestPart("files") MultipartFile[] files,
                         @RequestParam(defaultValue = "5") int limit) {
