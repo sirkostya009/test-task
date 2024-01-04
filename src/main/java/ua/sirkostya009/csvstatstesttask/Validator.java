@@ -1,26 +1,34 @@
 package ua.sirkostya009.csvstatstesttask;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
+import java.util.function.Predicate;
 
 @Component
+@Validated
 public class Validator {
-    public boolean validateRow(Row row) {
+    public boolean validateRow(@Valid Row row) {
         try {
             var bytes = Arrays.stream(row.ip().split("\\.")).mapToInt(Integer::parseInt).toArray();
             int status = row.status().charAt(0) - '0';
 
-            return Pattern.matches("^\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}$", row.ip())
-                    && Pattern.matches("^\\d{2}/\\d{2}/\\d{4}:\\d{2}:\\d{2}:\\d{2}-\\d{4}$", row.date())
-                    && Pattern.matches("^GET|POST|PUT|DELETE|HEAD|OPTIONS|TRACE|CONNECT$", row.method())
-                    && Pattern.matches("^/.*+$", row.uri())
-                    && Pattern.matches("^\\d{3}$", row.status())
-                    && bytes[0] != 0 && Arrays.stream(bytes).allMatch(b -> b < 256)
+            return bytes[0] != 0 && Arrays.stream(bytes).allMatch(b -> b < 256)
                     && status >= 1 && status <= 5;
         } catch (Exception ignored) {
             return false;
         }
+    }
+
+    public static <T> Predicate<T> proxiedPredicate(Predicate<T> validator) {
+        return t -> {
+            try {
+                return validator.test(t);
+            } catch (Exception ignored) {
+                return false;
+            }
+        };
     }
 }
