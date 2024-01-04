@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class StatsTest {
+public class StatsTests {
     @Test
     public void testCollector() {
         assertThat(Stream.of(

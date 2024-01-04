@@ -1,15 +1,7 @@
 package ua.sirkostya009.csvstatstesttask;
 
-import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collector;
 
 @Component
 public class Mapper {
@@ -27,17 +19,5 @@ public class Mapper {
                 record.get(URI),
                 record.get(STATUS)
         );
-    }
-
-    public static <T> Collector<MultipartFile, ?, List<T>> listCollector(CSVFormat format, Function<CSVRecord, T> mapper) {
-        return Collector.of(ArrayList::new,
-                            (list, file) -> {
-                                try(var parser = format.parse(new InputStreamReader(file.getInputStream()))) {
-                                    parser.getRecords().stream().map(mapper).forEach(list::add);
-                                } catch (Exception e) {
-                                    throw new RuntimeException(e);
-                                }
-                            },
-                            (list, _l) -> list);
     }
 }

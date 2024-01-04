@@ -19,7 +19,7 @@ public class Stats {
     private long parseTime;
 
     public Stats(int totalRows, int validRows, long parseTime) {
-        this(new TreeMap<>(Comparator.reverseOrder()), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime);
+        this(new TreeMap<>(), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime);
     }
 
     /**
@@ -39,7 +39,7 @@ public class Stats {
                             stats -> {
                                 stats.topUris = stats.topUris.entrySet().stream()
                                         .limit(limit)
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (map, _m) -> map, TreeMap::new));
                                 return stats;
                             });
     }
