@@ -11,21 +11,15 @@ import java.util.function.Predicate;
 @Validated
 public class Validator {
     public boolean validateRow(@Valid Row row) {
-        try {
-            var bytes = Arrays.stream(row.ip().split("\\.")).mapToInt(Integer::parseInt).toArray();
-            int status = row.status().charAt(0) - '0';
-
-            return bytes[0] != 0 && Arrays.stream(bytes).allMatch(b -> b < 256)
-                    && status >= 1 && status <= 5;
-        } catch (Exception ignored) {
-            return false;
-        }
+        return Arrays.stream(row.ip().split("\\."))
+                .mapToInt(Integer::parseInt)
+                .allMatch(i -> i < 256);
     }
 
     /**
      * Wraps a validator method with a try-catch block.
      * <p>
-     * Since the Validator class is annotated with @Validated, some of its methods may throw exception,
+     * Since  Validator class is annotated with @Validated, methods that utilize Jakarta Validation may throw exception,
      * which is not expected of a Predicate. This method wraps the validator method with a try-catch block
      * to make it suitable for using as a stable Predicate.
      * @param validator the proxied validation method

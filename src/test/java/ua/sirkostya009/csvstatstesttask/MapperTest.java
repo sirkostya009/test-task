@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 public class MapperTest {
@@ -26,6 +27,17 @@ public class MapperTest {
         var row = mapper.toRow(record);
 
         assertThat(row).isNotNull();
+    }
+
+    @Test
+    public void testToRowInvalidRecord() throws Exception {
+        var record = newRecord(new String[]{
+                ".0.0.256",
+                "01/01/1970:00:00:00-0000",
+        });
+
+        assertThatThrownBy(() -> mapper.toRow(record))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     private CSVRecord newRecord(String[] records) throws Exception {

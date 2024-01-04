@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 public class StatsTest {
