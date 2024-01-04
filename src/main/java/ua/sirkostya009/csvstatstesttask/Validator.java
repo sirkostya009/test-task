@@ -22,7 +22,16 @@ public class Validator {
         }
     }
 
-    public static <T> Predicate<T> proxiedPredicate(Predicate<T> validator) {
+    /**
+     * Wraps a validator method with a try-catch block.
+     * <p>
+     * Since the Validator class is annotated with @Validated, some of its methods may throw exception,
+     * which is not expected of a Predicate. This method wraps the validator method with a try-catch block
+     * to make it suitable for using as a stable Predicate.
+     * @param validator the proxied validation method
+     * @return a non-throwing predicate
+     */
+    public static <T> Predicate<T> normalize(Predicate<T> validator) {
         return t -> {
             try {
                 return validator.test(t);

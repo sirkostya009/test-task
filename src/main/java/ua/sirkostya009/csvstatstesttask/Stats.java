@@ -22,6 +22,13 @@ public class Stats {
         this(new TreeMap<>(Comparator.reverseOrder()), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime);
     }
 
+    /**
+     * @param totalRows the total number of rows
+     * @param validRows the number of valid rows
+     * @param parseTime the time spent on parsing
+     * @param limit the number of top URIs to collect
+     * @return A collector that collects rows into a Stats object.
+     */
     public static Collector<Row, ?, Stats> collector(int totalRows, int validRows, long parseTime, int limit) {
         return Collector.of(() -> new Stats(totalRows, validRows, parseTime),
                             (stats, row) -> {

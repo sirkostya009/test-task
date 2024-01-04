@@ -23,7 +23,7 @@ public class Controller {
 
         var rows = Arrays.stream(files).collect(Mapper.listCollector(CSVFormat.newFormat(';'), mapper::toRow));
 
-        var valid = rows.stream().filter(Validator.proxiedPredicate(validator::validateRow)).toList();
+        var valid = rows.stream().filter(Validator.normalize(validator::validateRow)).toList();
 
         return valid.stream().collect(Stats.collector(rows.size(), valid.size(), System.nanoTime() - start, limit));
     }
