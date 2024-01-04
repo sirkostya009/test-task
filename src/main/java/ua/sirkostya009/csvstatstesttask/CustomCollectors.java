@@ -26,7 +26,7 @@ public class CustomCollectors {
      * @return A collector that collects rows into a Stats object.
      */
     public Collector<Row, ?, Stats> statsCollector(int totalRows, int validRows, long parseTime, int limit) {
-        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ssZ").withZone(ZoneId.systemDefault());
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ssZ").withZone(ZoneId.of("UTC"));
 
         return Collector.of(() -> new Stats(totalRows, validRows, parseTime),
                             (stats, row) -> {

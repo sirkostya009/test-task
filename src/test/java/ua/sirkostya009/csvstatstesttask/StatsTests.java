@@ -37,7 +37,7 @@ public class StatsTests {
                 )
         ).collect(CustomCollectors.statsCollector(100, 5, 100, 2)))
                 .is(new Condition<>(s -> s.getTopUris().size() == 2, "topUris.size() == 2"))
-                .is(new Condition<>(s -> Map.of("01/01/1970:00:00:00-0000", 3L).equals(s.getRequestsPerSecond()), "requestsPerSecond.equals"))
+                .is(new Condition<>(s -> Map.of("01/01/1970:00:00:00+0000", 3L).equals(s.getRequestsPerSecond()), "requestsPerSecond.equals"))
                 .is(new Condition<>(s -> s.getTotalRows() == 100, "totalRows == 100"))
                 .is(new Condition<>(s -> s.getValidRows() == 5, "validRows == 5"))
                 .is(new Condition<>(s -> s.getParseTime() == 100, "parseTime == 100"));
