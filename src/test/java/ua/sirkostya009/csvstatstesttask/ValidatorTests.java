@@ -1,7 +1,7 @@
 package ua.sirkostya009.csvstatstesttask;
 
-import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 public class ValidatorTests {
-    @Resource
+    @Autowired
     private Validator validator;
 
     @Test
