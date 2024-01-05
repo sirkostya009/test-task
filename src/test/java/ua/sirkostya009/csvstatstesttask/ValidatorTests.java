@@ -26,7 +26,7 @@ public class ValidatorTests {
     }
 
     @Test
-    public void testValidateRowInvalidIp() {
+    public void testValidateRowHibernateValidationFailed() {
         var row = new Row(
                 "0.133.0.256",
                 "01/01/1970:00:00:00-0000",
@@ -43,7 +43,7 @@ public class ValidatorTests {
     }
 
     @Test
-    public void testValidateRowInvalidIpCustomCheck() {
+    public void testValidateRowCustomValidation() {
         var row = new Row(
                 "192.300.0.256",
                 "01/01/1970:00:00:00-0000",

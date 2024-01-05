@@ -38,20 +38,20 @@ public class Stats {
         var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ssZ").withZone(ZoneId.of("UTC"));
 
         return Collector.of(() -> new Stats(totalRows, validRows, parseTime),
-                (stats, row) -> {
-                    stats.getTopUris().merge(row.method() + '@' + row.uri(), 1L, Long::sum);
-                    stats.getRequestsPerSecond().merge(
-                            formatter.format(Instant.from(formatter.parse(row.date()))),
-                            1L,
-                            Long::sum
-                    );
-                },
-                (stats, _s) -> stats,
-                stats -> {
-                    stats.setTopUris(stats.getTopUris().entrySet().stream()
-                            .limit(limit)
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (map, _m) -> map, TreeMap::new)));
-                    return stats;
-                });
+                            (stats, row) -> {
+                                stats.getTopUris().merge(row.method() + '@' + row.uri(), 1L, Long::sum);
+                                stats.getRequestsPerSecond().merge(
+                                        formatter.format(Instant.from(formatter.parse(row.date()))),
+                                        1L,
+                                        Long::sum
+                                );
+                            },
+                            (stats, _s) -> stats,
+                            stats -> {
+                                stats.setTopUris(stats.getTopUris().entrySet().stream()
+                                        .limit(limit)
+                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (map, _m) -> map, TreeMap::new)));
+                                return stats;
+                            });
     }
 }

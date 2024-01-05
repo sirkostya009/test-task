@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.SchemaProperty;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -18,10 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,21 +30,28 @@ public class Controller {
 
     @Operation(
             summary = "Parse CSV files and return statistics",
-            parameters = {
-                    @Parameter(
-                            name = "files",
-                            description = "CSV files to parse. Note that header is not required",
-                            required = true,
-                            array = @ArraySchema(minItems = 1)
-                    ),
-                    @Parameter(name = "limit", description = "The number of top URIs to collect")
-            },
+            description = "Only returns an error if something went wrong internally, i.e., not client's fault",
+            parameters = @Parameter(name = "limit", description = "The number of top URIs to collect"),
             requestBody = @RequestBody(
                     description = "CSV files to parse. Note that header is not required",
                     required = true,
                     content = @Content(
                             mediaType = "multipart/form-data",
-                            schema = @Schema(implementation = MultipartFile[].class, accessMode = Schema.AccessMode.READ_ONLY),
+                            schemaProperties = @SchemaProperty(
+                                    name = "files",
+                                    array = @ArraySchema(items = @Schema(
+                                            format = "binary",
+                                            type = "string"
+                                    ))
+                            ),
+                            examples = @ExampleObject(
+                                    summary = "example csv file contents",
+                                    value = """
+                                            192.168.2.212;28/07/2006:10:27:10-0300;GET;/user/try/;200
+                                            192.168.2.212;28/07/2006:10:22:04-0300;GET;/;200
+                                            192.168.2.220;28/07/2006:10:25:04-0300;PUT;/save/;200
+                                            192.168.2.111;28/07/2006:10:25:04-0300;PUT;/save/;403"""
+                            ),
                             encoding = @Encoding(name = "files", contentType = "text/csv")
                     )
             ),
@@ -53,31 +60,27 @@ public class Controller {
     @PostMapping(path = "/parse", consumes = "multipart/form-data", produces = "application/json")
     public Stats upload(@RequestPart("files") MultipartFile[] files,
                         @RequestParam(defaultValue = "5") int limit) {
-        var start = System.nanoTime();
+        var start = System.currentTimeMillis();
 
-        var rows = Arrays.stream(files).collect(
-                csvParsingCollector(CSVFormat.newFormat(';'), Row::of)
-        );
+        var rows = Arrays.stream(files)
+                .flatMap(csvRecordStream(CSVFormat.newFormat(';')))
+                .map(Row::of)
+                .toList();
 
         var valid = rows.stream().filter(Validator.normalize(validator::validateRow)).toList();
 
         return valid.stream().collect(
-                Stats.collector(rows.size(), valid.size(), System.nanoTime() - start, limit)
+                Stats.collector(rows.size(), valid.size(), System.currentTimeMillis() - start, limit)
         );
     }
 
-    /**
-     * @param format the CSV file format
-     * @param mapper a function that maps CSVRecord to T
-     * @return A collector that parses CSV files into a list of objects.
-     */
-    private <T> Collector<MultipartFile, ?, List<T>> csvParsingCollector(CSVFormat format, Function<CSVRecord, T> mapper) {
-        return Collectors.flatMapping(multiFile -> {
-            try (var parser = format.parse(new InputStreamReader(multiFile.getInputStream()))) {
-                return parser.getRecords().stream().map(mapper);
+    private Function<MultipartFile, Stream<CSVRecord>> csvRecordStream(CSVFormat format) {
+        return file -> {
+            try(var parser = format.parse(new InputStreamReader(file.getInputStream()))) {
+                return parser.getRecords().stream();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }, Collectors.toList());
+        };
     }
 }

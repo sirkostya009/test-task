@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,13 +27,16 @@ public class ControllerTests {
         assertThat(stats)
                 .is(new Condition<>(s -> s.getValidRows() == 41, "valid"))
                 .is(new Condition<>(s -> s.getTotalRows() == 45, "total"))
-                .is(new Condition<>(s -> s.getTopUris().size() == 2, "top uris"));
+                .is(new Condition<>(s -> Map.of(
+                        "GET@/api/resource", 14L,
+                        "POST@/api/data", 15L
+                ).equals(s.getTopUris()), "top uris"));
     }
 
     private MultipartFile[] getFiles(String... names) {
         return Arrays.stream(names).map(name -> {
             try {
-                return new MockMultipartFile(name, name, "text/csv", ControllerTests.class.getResourceAsStream("/" + name));
+                return new MockMultipartFile(name, name, "text/csv", getClass().getResourceAsStream("/" + name));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
