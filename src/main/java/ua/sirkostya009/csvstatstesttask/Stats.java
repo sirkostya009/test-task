@@ -42,6 +42,7 @@ public record Stats(
                             (stats, _s) -> stats,
                             stats -> {
                                 var top = stats.topUris().entrySet().stream()
+                                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                                         .limit(limit)
                                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                                 stats.topUris.clear();
