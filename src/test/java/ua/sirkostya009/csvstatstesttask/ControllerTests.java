@@ -25,12 +25,12 @@ public class ControllerTests {
         var stats = controller.upload(files, 2);
 
         assertThat(stats)
-                .is(new Condition<>(s -> s.getValidRows() == 41, "valid"))
-                .is(new Condition<>(s -> s.getTotalRows() == 45, "total"))
+                .is(new Condition<>(s -> s.validRows() == 41, "valid"))
+                .is(new Condition<>(s -> s.totalRows() == 45, "total"))
                 .is(new Condition<>(s -> Map.of(
                         "GET@/api/resource", 14L,
                         "POST@/api/data", 15L
-                ).equals(s.getTopUris()), "top uris"));
+                ).equals(s.topUris()), "top uris"));
     }
 
     private MultipartFile[] getFiles(String... names) {
