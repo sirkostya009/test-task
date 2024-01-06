@@ -17,10 +17,6 @@ public record Stats(
         int validRows,
         long parseTime
 ) {
-    private Stats(int totalRows, int validRows, long parseTime) {
-        this(new LinkedHashMap<>(), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime);
-    }
-
     /**
      * @param totalRows total number of rows
      * @param validRows number of valid rows
@@ -31,7 +27,7 @@ public record Stats(
     public static Collector<Row, ?, Stats> collector(int totalRows, int validRows, long parseTime, int limit) {
         var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ssZ").withZone(ZoneId.of("UTC"));
 
-        return Collector.of(() -> new Stats(totalRows, validRows, parseTime),
+        return Collector.of(() -> new Stats(new LinkedHashMap<>(), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime),
                             (stats, row) -> {
                                 stats.topUris().merge(row.method() + '@' + row.uri(), 1L, Long::sum);
                                 stats.requestsPerSecond().merge(
