@@ -1,6 +1,5 @@
 package ua.sirkostya009.csvstatstesttask;
 
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,17 +19,17 @@ public class ControllerTests {
 
     @Test
     public void testUpload() {
+        var topUris = Map.of("POST@/api/data", 15L,
+                             "GET@/api/resource", 14L);
+
         var files = getFiles("valid.csv", "invalid-codes.csv", "invalid-ips.csv", "invalid-methods.csv");
 
         var stats = controller.upload(files, 2);
 
         assertThat(stats)
-                .is(new Condition<>(s -> s.validRows() == 41, "valid"))
-                .is(new Condition<>(s -> s.totalRows() == 45, "total"))
-                .is(new Condition<>(s -> Map.of(
-                        "GET@/api/resource", 14L,
-                        "POST@/api/data", 15L
-                ).equals(s.topUris()), "top uris"));
+                .hasFieldOrPropertyWithValue("validRows", 41)
+                .hasFieldOrPropertyWithValue("totalRows", 45)
+                .hasFieldOrPropertyWithValue("topUris", topUris);
     }
 
     private MultipartFile[] getFiles(String... names) {
