@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public record Stats(
         Map<String, Long> topUris,
@@ -41,9 +40,9 @@ public record Stats(
                                 var top = stats.topUris().entrySet().stream()
                                         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                                         .limit(limit)
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+                                        .toList();
                                 stats.topUris.clear();
-                                stats.topUris.putAll(top);
+                                top.forEach(e -> stats.topUris.put(e.getKey(), e.getValue()));
                                 return stats;
                             });
     }
