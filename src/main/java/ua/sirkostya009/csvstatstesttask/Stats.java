@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collector;
@@ -17,7 +18,7 @@ public record Stats(
         long parseTime
 ) {
     private Stats(int totalRows, int validRows, long parseTime) {
-        this(new TreeMap<>(), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime);
+        this(new LinkedHashMap<>(), new TreeMap<>(Comparator.reverseOrder()), totalRows, validRows, parseTime);
     }
 
     /**
@@ -44,7 +45,7 @@ public record Stats(
                                 var top = stats.topUris().entrySet().stream()
                                         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                                         .limit(limit)
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
                                 stats.topUris.clear();
                                 stats.topUris.putAll(top);
                                 return stats;
