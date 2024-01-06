@@ -37,7 +37,7 @@ public class ValidatorTests {
 
         assertThatThrownBy(() -> validator.validateRow(row))
                 .hasMessageContainingAll(
-                        "ip: must match \"^(?!000)(?!00)(?!0)(\\d{1,3})\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$\"",
+                        "ip: must match \"^(?!0+\\.)\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$\"",
                         "status: must match \"^[1-5]\\d{2}$\""
                 );
     }
