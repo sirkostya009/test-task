@@ -2,12 +2,7 @@ package ua.sirkostya009.csvstatstesttask;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Encoding;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
+import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -19,14 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
 public class Controller {
     private final Validator validator;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ssZ").withZone(ZoneId.of("UTC"));
 
     @Operation(
             summary = "Parse CSV files and return statistics",
@@ -69,9 +70,32 @@ public class Controller {
 
         var valid = rows.stream().filter(Validator.normalize(validator::validateRow)).toList();
 
-        return valid.stream().collect(
-                Stats.collector(rows.size(), valid.size(), System.currentTimeMillis() - start, limit)
-        );
+        return Stats.builder()
+                .topUris(valid.stream()
+                        .collect(Collectors.groupingBy(row -> row.method() + '@' + row.uri(), Collectors.counting()))
+                        .entrySet().stream()
+                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                        .limit(limit)
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (m1, m2) -> m1,
+                                () -> new LinkedHashMap<>(limit)
+                        )))
+                .requestsPerSecond(valid.stream()
+                        .collect(Collectors.groupingBy(row -> formatter.format(Instant.from(formatter.parse(row.date()))),
+                                                       Collectors.counting()))
+                        .entrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (m1, m2) -> m1,
+                                () -> new TreeMap<String, Long>(Comparator.reverseOrder())
+                        )))
+                .totalRows(rows.size())
+                .validRows(valid.size())
+                .parseTime(System.currentTimeMillis() - start)
+                .build();
     }
 
     private Function<MultipartFile, Stream<CSVRecord>> csvRecordStream(CSVFormat format) {
