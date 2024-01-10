@@ -1,4 +1,4 @@
-package ua.sirkostya009.csvstatstesttask;
+package ua.sirkostya009.csvstatstesttask.model;
 
 import lombok.Builder;
 
