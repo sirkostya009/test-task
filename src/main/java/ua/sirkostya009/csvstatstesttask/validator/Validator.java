@@ -1,5 +1,6 @@
 package ua.sirkostya009.csvstatstesttask.validator;
 
-public interface Validator<T> {
-    boolean validate(T t);
+import java.util.function.Predicate;
+
+public interface Validator<T> extends Predicate<T> {
 }

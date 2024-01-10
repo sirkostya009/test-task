@@ -14,7 +14,8 @@ public class RowValidator implements Validator<Row> {
     private final Pattern uriPattern = Pattern.compile("^/\\S*$");
     private final Pattern statusPattern = Pattern.compile("^[1-5]\\d{2}$");
 
-    public boolean validate(Row row) {
+    @Override
+    public boolean test(Row row) {
         var ip = ipPattern.matcher(row.ip());
         var date = datePattern.matcher(row.date());
         var method = methodPattern.matcher(row.method());

@@ -10,13 +10,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ua.sirkostya009.csvstatstesttask.service.ParseService;
+import ua.sirkostya009.csvstatstesttask.model.Row;
 import ua.sirkostya009.csvstatstesttask.model.Stats;
+import ua.sirkostya009.csvstatstesttask.service.ParseService;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 public class Controller {
-    private final ParseService service;
+    private final ParseService<Row, Stats> service;
 
     @Operation(
             summary = "Parse CSV files and return statistics",
@@ -50,6 +53,6 @@ public class Controller {
     @PostMapping(path = "/parse", consumes = "multipart/form-data", produces = "application/json")
     public Stats upload(@RequestPart("files") MultipartFile[] files,
                         @RequestParam(defaultValue = "5") int limit) {
-        return service.parse(files, limit);
+        return service.apply(files, Map.of("limit", limit));
     }
 }

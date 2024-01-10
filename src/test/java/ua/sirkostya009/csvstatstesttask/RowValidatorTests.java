@@ -23,7 +23,7 @@ public class RowValidatorTests {
                 "200"
         );
 
-        assertThat(validator.validate(row)).isEqualTo(true);
+        assertThat(validator.test(row)).isEqualTo(true);
     }
 
     @Test
@@ -36,6 +36,6 @@ public class RowValidatorTests {
                 "900"
         );
 
-        assertThat(validator.validate(row)).isEqualTo(false);
+        assertThat(validator.test(row)).isEqualTo(false);
     }
 }
