@@ -1,32 +1,23 @@
-package ua.sirkostya009.csvstatstesttask;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Encoding;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
+import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import ua.sirkostya009.csvstatstesttask.service.Parser;
 
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class Controller {
-    private final Validator validator;
+public class RowStatsController {
+    private final Parser<Row, Stats> service;
 
     @Operation(
             summary = "Parse CSV files and return statistics",
@@ -58,29 +49,8 @@ public class Controller {
             tags = {"CSV"}
     )
     @PostMapping(path = "/parse", consumes = "multipart/form-data", produces = "application/json")
-    public Stats upload(@RequestPart("files") MultipartFile[] files,
-                        @RequestParam(defaultValue = "5") int limit) {
-        var start = System.currentTimeMillis();
-
-        var rows = Arrays.stream(files)
-                .flatMap(csvRecordStream(CSVFormat.newFormat(';')))
-                .map(Row::of)
-                .toList();
-
-        var valid = rows.stream().filter(Validator.normalize(validator::validateRow)).toList();
-
-        return valid.stream().collect(
-                Stats.collector(rows.size(), valid.size(), System.currentTimeMillis() - start, limit)
-        );
-    }
-
-    private Function<MultipartFile, Stream<CSVRecord>> csvRecordStream(CSVFormat format) {
-        return file -> {
-            try(var parser = format.parse(new InputStreamReader(file.getInputStream()))) {
-                return parser.getRecords().stream();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        };
+    public Stats parseMethod(@RequestPart("files") MultipartFile[] files,
+                             @RequestParam Map<String, Object> params) {
+        return service.apply(files, params);
     }
 }

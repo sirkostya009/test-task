@@ -1,4 +1,4 @@
-package ua.sirkostya009.csvstatstesttask;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,9 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class ControllerTests {
+public class RowStatsParserTests {
     @Autowired
-    private Controller controller;
+    private RowStatsParser service;
 
     @Test
     public void testUpload() {
@@ -24,7 +24,7 @@ public class ControllerTests {
 
         var files = getFiles("valid.csv", "invalid-codes.csv", "invalid-ips.csv", "invalid-methods.csv");
 
-        var stats = controller.upload(files, 2);
+        var stats = service.apply(files, Map.of("limit", "2"));
 
         assertThat(stats)
                 .hasFieldOrPropertyWithValue("validRows", 41)
