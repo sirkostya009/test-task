@@ -2,8 +2,6 @@ package ua.sirkostya009.csvstatstesttask.service;
 
 import org.apache.commons.csv.CSVFormat;
 import org.springframework.web.multipart.MultipartFile;
-import ua.sirkostya009.csvstatstesttask.mapper.Mapper;
-import ua.sirkostya009.csvstatstesttask.validator.Validator;
 
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -11,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public interface ParseService<T, R> extends BiFunction<MultipartFile[], Map<String, Object>, R> {
+public interface Parser<T, R> extends BiFunction<MultipartFile[], Map<String, Object>, R> {
     CSVFormat getFormat();
 
     Mapper<T> getMapper();

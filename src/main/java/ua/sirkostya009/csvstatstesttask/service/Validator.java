@@ -1,4 +1,4 @@
-package ua.sirkostya009.csvstatstesttask.validator;
+package ua.sirkostya009.csvstatstesttask.service;
 
 import java.util.function.Predicate;
 

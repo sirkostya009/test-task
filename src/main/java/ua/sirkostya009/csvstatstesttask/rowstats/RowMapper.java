@@ -1,8 +1,8 @@
-package ua.sirkostya009.csvstatstesttask.mapper;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
-import ua.sirkostya009.csvstatstesttask.model.Row;
+import ua.sirkostya009.csvstatstesttask.service.Mapper;
 
 @Component
 public class RowMapper implements Mapper<Row> {

@@ -1,10 +1,8 @@
-package ua.sirkostya009.csvstatstesttask;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ua.sirkostya009.csvstatstesttask.model.Row;
-import ua.sirkostya009.csvstatstesttask.validator.RowValidator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

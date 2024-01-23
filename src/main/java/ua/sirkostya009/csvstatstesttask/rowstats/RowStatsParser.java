@@ -1,14 +1,13 @@
-package ua.sirkostya009.csvstatstesttask.service;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ua.sirkostya009.csvstatstesttask.mapper.Mapper;
-import ua.sirkostya009.csvstatstesttask.model.Row;
-import ua.sirkostya009.csvstatstesttask.model.Stats;
-import ua.sirkostya009.csvstatstesttask.validator.Validator;
+import ua.sirkostya009.csvstatstesttask.service.Mapper;
+import ua.sirkostya009.csvstatstesttask.service.Parser;
+import ua.sirkostya009.csvstatstesttask.service.Validator;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RowStatsService implements ParseService<Row, Stats> {
+public class RowStatsParser implements Parser<Row, Stats> {
     @Getter
     private final CSVFormat format = CSVFormat.newFormat(';');
     @Getter
@@ -34,7 +33,7 @@ public class RowStatsService implements ParseService<Row, Stats> {
     @Override
     public Stats apply(MultipartFile[] files, Map<String, Object> context) {
         var start = System.currentTimeMillis();
-        var limit = (int) context.getOrDefault("limit", 5);
+        var limit = Integer.parseInt((String) context.getOrDefault("limit", "5"));
 
         var rows = parseRows(files);
         var valid = filterValidRows(rows);

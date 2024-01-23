@@ -1,7 +1,7 @@
-package ua.sirkostya009.csvstatstesttask.validator;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import org.springframework.stereotype.Component;
-import ua.sirkostya009.csvstatstesttask.model.Row;
+import ua.sirkostya009.csvstatstesttask.service.Validator;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;

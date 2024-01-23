@@ -1,4 +1,4 @@
-package ua.sirkostya009.csvstatstesttask.controller;
+package ua.sirkostya009.csvstatstesttask.rowstats;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,16 +10,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ua.sirkostya009.csvstatstesttask.model.Row;
-import ua.sirkostya009.csvstatstesttask.model.Stats;
-import ua.sirkostya009.csvstatstesttask.service.ParseService;
+import ua.sirkostya009.csvstatstesttask.service.Parser;
 
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class Controller {
-    private final ParseService<Row, Stats> service;
+public class RowStatsController {
+    private final Parser<Row, Stats> service;
 
     @Operation(
             summary = "Parse CSV files and return statistics",
@@ -51,8 +49,8 @@ public class Controller {
             tags = {"CSV"}
     )
     @PostMapping(path = "/parse", consumes = "multipart/form-data", produces = "application/json")
-    public Stats upload(@RequestPart("files") MultipartFile[] files,
-                        @RequestParam(defaultValue = "5") int limit) {
-        return service.apply(files, Map.of("limit", limit));
+    public Stats parseMethod(@RequestPart("files") MultipartFile[] files,
+                             @RequestParam Map<String, Object> params) {
+        return service.apply(files, params);
     }
 }
